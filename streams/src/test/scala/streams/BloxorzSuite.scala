@@ -59,6 +59,19 @@ class BloxorzSuite extends FunSuite {
     }
   }
 
+  test("findChar level 1 done") {
+    new Level1 {
+      assert(goal == Pos(4, 7))
+    }
+  }
+
+  test("done is right") {
+    new Level1 {
+      val blockInEnd = Block(Pos(4, 7),  Pos(4, 7))
+      assert(done(blockInEnd))
+    }
+  }
+
   test("neighbors with history level 1") {
     new Level1 {
       val neighbors = neighborsWithHistory(Block(Pos(1, 1), Pos(1, 1)), List(Left, Up))
@@ -70,6 +83,38 @@ class BloxorzSuite extends FunSuite {
     }
   }
 
+  test("newNeighborsOnly avoids circles") {
+    new Level1 {
+      val actual = newNeighborsOnly(
+        Set(
+          (Block(Pos(1, 2), Pos(1, 3)), List(Right, Left, Up)),
+          (Block(Pos(2, 1), Pos(3, 1)), List(Down, Left, Up))
+        ).toStream,
+
+        Set(Block(Pos(1, 2), Pos(1, 3)), Block(Pos(1, 1), Pos(1, 1)))
+      )
+      val expected = Set(
+        (Block(Pos(2, 1), Pos(3, 1)), List(Down, Left, Up))
+      ).toStream
+
+      assert(actual === expected)
+    }
+  }
+
+  test("from is BFS") {
+    new Level1 {
+      val fromStream = from(neighborsWithHistory(startBlock, List.empty), Set.empty)
+      val actual = fromStream.map(_._2.length).take(100)
+      val expected = actual.sorted
+      assert(actual === expected)
+    }
+  }
+
+  test("pathsToGoal accepts many solutions") {
+    new Level1 {
+      assert(pathsToGoal.toList.length !== 1)
+    }
+  }
 
   test("optimal solution for level 1") {
     new Level1 {
