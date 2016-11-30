@@ -1,16 +1,11 @@
 package week3
 
-object Delays {
-  val InverterDelay = 1
-  val AndGateDelay = 1
-  val OrGateDelay = 1
-}
 
-object CircuitSimulation extends Simulation {
+trait Gates extends Simulation {
 
-  import Delays._
-
-  type Action = () => Unit
+  val InverterDelay: Int
+  val AndGateDelay: Int
+  val OrGateDelay: Int
 
   class Wire {
     private var sigVal = false
@@ -57,5 +52,20 @@ object CircuitSimulation extends Simulation {
     }
     in1 addAction orAction
     in2 addAction orAction
+  }
+
+  def orGateAlt(in1: Wire, in2: Wire, output: Wire): Unit = {
+    val notIn1, notIn2, notOutput = new Wire
+    inverter(in1, notIn1)
+    inverter(in1, notIn1)
+    andGate(notIn1, notIn2, notOutput)
+    inverter(notOutput, output)
+  }
+
+  def probe(name: String, wire: Wire): Unit = {
+    def probeAction(): Unit = {
+      println(s"$name $currentTime value = ${wire.getSignal}")
+    }
+    wire addAction probeAction
   }
 }
